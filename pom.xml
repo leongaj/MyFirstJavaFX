@@ -107,7 +107,7 @@
                         <!-- Default configuration for running with: mvn clean javafx:run -->
                         <id>default-cli</id>
                         <configuration>
-                            <mainClass>com.example.adapt/com.example.adapt.HelloApplication</mainClass>
+                            <mainClass>com.example.adapt/com.example.adapt.Main</mainClass>
                         </configuration>
                     </execution>
                 </executions>

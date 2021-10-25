@@ -79,6 +79,8 @@ public class Controller {
 
     @FXML
     protected void loadSchedule() {
+        this.table_schedule.getColumns().clear();
+        this.table_schedule.getItems().clear();
 
         // calculate date month
         String month = YearMonth.now().getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);

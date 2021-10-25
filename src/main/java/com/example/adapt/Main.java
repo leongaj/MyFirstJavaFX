@@ -20,7 +20,7 @@ public class Main extends Application {
     public void start(Stage stage) throws IOException {
 
         FXMLLoader fxmlLoader = new FXMLLoader(Main.class.getResource("View.fxml"));
-        Scene scene = new Scene(fxmlLoader.load(), 720, 568);
+        Scene scene = new Scene(fxmlLoader.load(), 940, 568);
         stage.setTitle("Adaptation");
         stage.setScene(scene);
         stage.setResizable(false);

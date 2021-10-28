@@ -13,8 +13,8 @@ public class ActivityDateTime {
                              String activity_time_C, String activity_time_D) {
 
         this.Date = date;
-        if (Integer.parseInt(date.split(" ")[0]) < 10) {
-            this.Date = "0" + date;
+        if (date.split("-")[0].length() == 1) {
+            this.Date = "0"+date;
         }
         this.CapabilityA = activity_time_A;
         this.CapabilityB = activity_time_B;

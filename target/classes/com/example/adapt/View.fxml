@@ -17,370 +17,370 @@
 <?import javafx.scene.text.Font?>
 
 <BorderPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="568.0" prefWidth="940.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.adapt.Controller">
-   <center>
-      <Accordion BorderPane.alignment="CENTER">
-        <panes>
-          <TitledPane animated="false" onMouseClicked="#loadSchedule" text="Schedule">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <content>
-                              <TableView fx:id="table_schedule" prefHeight="400.0" prefWidth="917.0" />
-                           </content>
-                        </ScrollPane>
-                     </children>
-                  </AnchorPane>
-            </content>
-          </TitledPane>
-            <TitledPane animated="false" onMouseClicked="#loadConfiguration" text="Configurations">
-              <content>
-                <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <content>
-                              <TableView prefHeight="400.0" prefWidth="917.0" />
-                           </content>
-                        </ScrollPane>
-                     </children>
-                  </AnchorPane>
-              </content>
-            </TitledPane>
-          <TitledPane animated="false" text="Tasking">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <content>
-                              <TableView />
-                           </content>
-                        </ScrollPane>
-                     </children></AnchorPane>
-            </content>
-          </TitledPane>
-          <TitledPane animated="false" text="Add-Ons">
-            <content>
-              <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
-                     <children>
-                        <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
-                           <children>
-                              <Label text="Amend Schedule">
-                                 <VBox.margin>
-                                    <Insets bottom="5.0" left="20.0" top="20.0" />
-                                 </VBox.margin>
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                              </Label>
-                              <HBox prefHeight="96.0" prefWidth="919.0">
-                                 <children>
-                                    <VBox>
-                                       <children>
-                                          <Label text="Current Date">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="15.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                          <Label text="New Date">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="15.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <DatePicker>
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="10.0" right="10.0" />
-                                             </VBox.margin>
-                                          </DatePicker>
-                                          <DatePicker>
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                                             </VBox.margin>
-                                          </DatePicker>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <Label text="Current Start Time">
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="5.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                          <Label text="New End Time">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="5.0" top="10.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="10.0" right="10.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <Label text="Current End Time">
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="5.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                          <Label text="New End Time">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="5.0" top="10.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="10.0" right="10.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                       </children>
-                                    </VBox>
-                                    <Button mnemonicParsing="false" text="Submit">
-                                       <HBox.margin>
-                                          <Insets bottom="10.0" left="10.0" right="10.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <Label text="Insert Schedule">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                                 <VBox.margin>
-                                    <Insets bottom="5.0" left="20.0" />
-                                 </VBox.margin>
-                              </Label>
-                              <HBox prefHeight="60.0" prefWidth="919.0">
-                                 <children>
-                                    <Label text="New Date">
-                                       <HBox.margin>
-                                          <Insets left="15.0" right="10.0" top="5.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <DatePicker>
-                                       <HBox.margin>
-                                          <Insets top="2.0" />
-                                       </HBox.margin>
-                                    </DatePicker>
-                                    <Label text="New End Time">
-                                       <HBox.margin>
-                                          <Insets left="15.0" right="10.0" top="5.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <TextField>
-                                       <HBox.margin>
-                                          <Insets top="2.0" />
-                                       </HBox.margin>
-                                    </TextField>
-                                    <Label text="New End Time">
-                                       <HBox.margin>
-                                          <Insets left="15.0" right="10.0" top="5.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <TextField>
-                                       <HBox.margin>
-                                          <Insets top="2.0" />
-                                       </HBox.margin>
-                                    </TextField>
-                                    <Button mnemonicParsing="false" text="Submit">
-                                       <HBox.margin>
-                                          <Insets bottom="10.0" left="20.0" right="10.0" top="2.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <Label text="Delete Schedule">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                                 <VBox.margin>
-                                    <Insets left="20.0" />
-                                 </VBox.margin>
-                              </Label>
-                              <HBox prefHeight="60.0" prefWidth="919.0">
-                                 <children>
-                                    <Label text="Current Date">
-                                       <HBox.margin>
-                                          <Insets left="15.0" right="10.0" top="5.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <DatePicker>
-                                       <HBox.margin>
-                                          <Insets top="2.0" />
-                                       </HBox.margin>
-                                    </DatePicker>
-                                    <Label text="Current Start Time">
-                                       <HBox.margin>
-                                          <Insets left="15.0" right="10.0" top="5.0" />
-                                       </HBox.margin>
-                                    </Label>
-                                    <TextField>
-                                       <HBox.margin>
-                                          <Insets top="2.0" />
-                                       </HBox.margin>
-                                    </TextField>
-                                    <Button mnemonicParsing="false" text="Submit">
-                                       <HBox.margin>
-                                          <Insets bottom="10.0" left="20.0" right="10.0" top="2.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                              <Label text="Insert New Location">
-                                 <font>
-                                    <Font name="System Bold" size="14.0" />
-                                 </font>
-                                 <VBox.margin>
-                                    <Insets left="20.0" />
-                                 </VBox.margin>
-                              </Label>
-                              <HBox prefHeight="96.0" prefWidth="919.0">
-                                 <children>
-                                    <VBox>
-                                       <children>
-                                          <Label text="Category">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="15.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                          <Label text="Priority">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="15.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="10.0" right="10.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <Label text="Name">
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="5.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                          <Label text="Revisit Rate">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="5.0" top="10.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="10.0" right="10.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <Label text="Latitude">
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="5.0" top="5.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                          <Label text="Longitude">
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="5.0" top="10.0" />
-                                             </VBox.margin>
-                                          </Label>
-                                       </children>
-                                    </VBox>
-                                    <VBox>
-                                       <children>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="5.0" left="10.0" right="10.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                          <TextField>
-                                             <VBox.margin>
-                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
-                                             </VBox.margin>
-                                          </TextField>
-                                       </children>
-                                    </VBox>
-                                    <Button mnemonicParsing="false" text="Submit">
-                                       <HBox.margin>
-                                          <Insets bottom="10.0" left="10.0" right="10.0" />
-                                       </HBox.margin>
-                                    </Button>
-                                 </children>
-                                 <padding>
-                                    <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
-                                 </padding>
-                              </HBox>
-                           </children>
-                        </VBox>
-                     </children></AnchorPane>
-            </content>
-          </TitledPane>
-        </panes>
-      </Accordion>
-   </center>
-   <top>
-      <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
-        <buttons>
-            <Button fx:id="btn_upload_schedule" mnemonicParsing="false" onMouseClicked="#btnUploadSchedule" text="Upload Schedule" />
-            <Button fx:id="btn_load_config" mnemonicParsing="false" onMouseClicked="#btnUploadConfig" text="Upload Configurations" />
-            <DatePicker fx:id="picker_month_year" />
-            <Button fx:id="btn_picker" mnemonicParsing="false" onMouseClicked="#pickMonthYear" text="Submit" />
-        </buttons>
-         <padding>
-            <Insets left="10.0" right="10.0" />
-         </padding>
-      </ButtonBar>
-   </top>
+    <center>
+        <Accordion BorderPane.alignment="CENTER">
+            <panes>
+                <TitledPane animated="false" onMouseClicked="#loadSchedule" text="Schedule">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <content>
+                                        <TableView fx:id="table_schedule" prefHeight="400.0" prefWidth="917.0" />
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </TitledPane>
+                <TitledPane animated="false" onMouseClicked="#loadConfiguration" text="Configurations">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <content>
+                                        <TableView prefHeight="400.0" prefWidth="917.0" />
+                                    </content>
+                                </ScrollPane>
+                            </children>
+                        </AnchorPane>
+                    </content>
+                </TitledPane>
+                <TitledPane animated="false" text="Tasking">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <ScrollPane prefHeight="200.0" prefWidth="200.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <content>
+                                        <TableView />
+                                    </content>
+                                </ScrollPane>
+                            </children></AnchorPane>
+                    </content>
+                </TitledPane>
+                <TitledPane animated="false" text="Add-Ons">
+                    <content>
+                        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
+                            <children>
+                                <VBox prefHeight="200.0" prefWidth="100.0" AnchorPane.bottomAnchor="0.0" AnchorPane.leftAnchor="0.0" AnchorPane.rightAnchor="0.0" AnchorPane.topAnchor="0.0">
+                                    <children>
+                                        <Label text="Amend Schedule">
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="20.0" top="20.0" />
+                                            </VBox.margin>
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                        </Label>
+                                        <HBox prefHeight="96.0" prefWidth="919.0">
+                                            <children>
+                                                <VBox>
+                                                    <children>
+                                                        <Label text="Current Date">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="15.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <Label text="New Date">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="15.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <DatePicker>
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="10.0" right="10.0" />
+                                                            </VBox.margin>
+                                                        </DatePicker>
+                                                        <DatePicker>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </DatePicker>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <Label text="Current Start Time">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <Label text="New End Time">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="5.0" top="10.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="10.0" right="10.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <Label text="Current End Time">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <Label text="New End Time">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="5.0" top="10.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="10.0" right="10.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                    </children>
+                                                </VBox>
+                                                <Button mnemonicParsing="false" text="Submit">
+                                                    <HBox.margin>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" />
+                                                    </HBox.margin>
+                                                </Button>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                            </padding>
+                                        </HBox>
+                                        <Label text="Insert Schedule">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                            <VBox.margin>
+                                                <Insets bottom="5.0" left="20.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <HBox prefHeight="60.0" prefWidth="919.0">
+                                            <children>
+                                                <Label text="New Date">
+                                                    <HBox.margin>
+                                                        <Insets left="15.0" right="10.0" top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <DatePicker>
+                                                    <HBox.margin>
+                                                        <Insets top="2.0" />
+                                                    </HBox.margin>
+                                                </DatePicker>
+                                                <Label text="New End Time">
+                                                    <HBox.margin>
+                                                        <Insets left="15.0" right="10.0" top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField>
+                                                    <HBox.margin>
+                                                        <Insets top="2.0" />
+                                                    </HBox.margin>
+                                                </TextField>
+                                                <Label text="New End Time">
+                                                    <HBox.margin>
+                                                        <Insets left="15.0" right="10.0" top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField>
+                                                    <HBox.margin>
+                                                        <Insets top="2.0" />
+                                                    </HBox.margin>
+                                                </TextField>
+                                                <Button mnemonicParsing="false" text="Submit">
+                                                    <HBox.margin>
+                                                        <Insets bottom="10.0" left="20.0" right="10.0" top="2.0" />
+                                                    </HBox.margin>
+                                                </Button>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                            </padding>
+                                        </HBox>
+                                        <Label text="Delete Schedule">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                            <VBox.margin>
+                                                <Insets left="20.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <HBox prefHeight="60.0" prefWidth="919.0">
+                                            <children>
+                                                <Label text="Current Date">
+                                                    <HBox.margin>
+                                                        <Insets left="15.0" right="10.0" top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <DatePicker>
+                                                    <HBox.margin>
+                                                        <Insets top="2.0" />
+                                                    </HBox.margin>
+                                                </DatePicker>
+                                                <Label text="Current Start Time">
+                                                    <HBox.margin>
+                                                        <Insets left="15.0" right="10.0" top="5.0" />
+                                                    </HBox.margin>
+                                                </Label>
+                                                <TextField>
+                                                    <HBox.margin>
+                                                        <Insets top="2.0" />
+                                                    </HBox.margin>
+                                                </TextField>
+                                                <Button mnemonicParsing="false" text="Submit">
+                                                    <HBox.margin>
+                                                        <Insets bottom="10.0" left="20.0" right="10.0" top="2.0" />
+                                                    </HBox.margin>
+                                                </Button>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                            </padding>
+                                        </HBox>
+                                        <Label text="Insert New Location">
+                                            <font>
+                                                <Font name="System Bold" size="14.0" />
+                                            </font>
+                                            <VBox.margin>
+                                                <Insets left="20.0" />
+                                            </VBox.margin>
+                                        </Label>
+                                        <HBox prefHeight="96.0" prefWidth="919.0">
+                                            <children>
+                                                <VBox>
+                                                    <children>
+                                                        <Label text="Category">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="15.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <Label text="Priority">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="15.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="10.0" right="10.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <Label text="Name">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <Label text="Revisit Rate">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="5.0" top="10.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="10.0" right="10.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <Label text="Latitude">
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="5.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                        <Label text="Longitude">
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="5.0" top="10.0" />
+                                                            </VBox.margin>
+                                                        </Label>
+                                                    </children>
+                                                </VBox>
+                                                <VBox>
+                                                    <children>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="5.0" left="10.0" right="10.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                        <TextField>
+                                                            <VBox.margin>
+                                                                <Insets bottom="10.0" left="10.0" right="10.0" top="5.0" />
+                                                            </VBox.margin>
+                                                        </TextField>
+                                                    </children>
+                                                </VBox>
+                                                <Button mnemonicParsing="false" text="Submit">
+                                                    <HBox.margin>
+                                                        <Insets bottom="10.0" left="10.0" right="10.0" />
+                                                    </HBox.margin>
+                                                </Button>
+                                            </children>
+                                            <padding>
+                                                <Insets bottom="10.0" left="10.0" right="10.0" top="10.0" />
+                                            </padding>
+                                        </HBox>
+                                    </children>
+                                </VBox>
+                            </children></AnchorPane>
+                    </content>
+                </TitledPane>
+            </panes>
+        </Accordion>
+    </center>
+    <top>
+        <ButtonBar prefHeight="40.0" prefWidth="200.0" BorderPane.alignment="CENTER">
+            <buttons>
+                <Button fx:id="btn_upload_schedule" mnemonicParsing="false" onMouseClicked="#btnUploadSchedule" text="Upload Schedule" />
+                <Button fx:id="btn_load_config" mnemonicParsing="false" onMouseClicked="#btnUploadConfig" text="Upload Configurations" />
+                <DatePicker fx:id="picker_month_year" />
+                <Button fx:id="btn_picker" mnemonicParsing="false" onMouseClicked="#pickMonthYear" text="Submit" />
+            </buttons>
+            <padding>
+                <Insets left="10.0" right="10.0" />
+            </padding>
+        </ButtonBar>
+    </top>
 </BorderPane>

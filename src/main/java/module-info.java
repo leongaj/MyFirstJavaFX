@@ -8,7 +8,6 @@ module com.example.adapt {
     requires validatorfx;
     requires org.kordamp.bootstrapfx.core;
     requires eu.hansolo.tilesfx;
-    requires java.desktop;
 
     opens com.example.adapt to javafx.fxml;
     exports com.example.adapt;

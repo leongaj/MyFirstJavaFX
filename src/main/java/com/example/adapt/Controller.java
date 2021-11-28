@@ -24,6 +24,7 @@ public class Controller {
 
     private final ObservableList<ActivityDateTime> scheduleData = FXCollections.observableArrayList();
     private final ObservableList<Location> locationData = FXCollections.observableArrayList();
+    private final ObservableList<Location> locationPossibilityData = FXCollections.observableArrayList();
 
     protected final int numCapability = 4;
     protected final int numRows = numCapability+1;
@@ -43,6 +44,7 @@ public class Controller {
     // table views in titled panes
     @FXML private TableView table_schedule;
     @FXML private TableView table_locations;
+    @FXML private TableView table_taskings;
 
     // upload buttons
     @FXML private Button btn_upload_schedule;
@@ -443,15 +445,16 @@ public class Controller {
         locations_filepath = Paths.get(data_directory_string+ locations_filename_string);
         ArrayList<String[]> locations_file_data = readCSVData(new File(locations_filepath.toString()));
 
-        // load schedule data
+        // load location data
         for (int i = 0; i < locations_file_data.size(); i++) {
             String location = locations_file_data.get(i)[0];
-            String capability_time_A = locations_file_data.get(i)[1];
-            String capability_time_B = locations_file_data.get(i)[2];
-            String capability_time_C = locations_file_data.get(i)[3];
-            String capability_time_D = locations_file_data.get(i)[4];
+            String loc_revisit = locations_file_data.get(i)[1];
+            String capability_ability_A = locations_file_data.get(i)[2];
+            String capability_ability_B = locations_file_data.get(i)[3];
+            String capability_ability_C = locations_file_data.get(i)[4];
+            String capability_ability_D = locations_file_data.get(i)[5];
 
-            Location newLocation = new Location(location, capability_time_A, capability_time_B, capability_time_C, capability_time_D);
+            Location newLocation = new Location(location, loc_revisit, capability_ability_A, capability_ability_B, capability_ability_C, capability_ability_D);
             locationData.add(newLocation);
         }
 
@@ -459,6 +462,10 @@ public class Controller {
         TableColumn LocationColumn = new TableColumn("Location");
         LocationColumn.setCellValueFactory(new PropertyValueFactory<Location, String>("Location"));
         LocationColumn.setText("Location");
+
+        TableColumn LocRevisitColumn = new TableColumn("Revisit");
+        LocRevisitColumn.setCellValueFactory(new PropertyValueFactory<Location, Integer>("Revisit"));
+        LocRevisitColumn.setText("Revisit (days)");
 
         TableColumn CapabilityA = new TableColumn("CapabilityA");
         CapabilityA.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityA"));
@@ -478,12 +485,42 @@ public class Controller {
 
         // load data into TableView
         this.table_locations.setEditable(false);
-        this.table_locations.getColumns().addAll(LocationColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
+        this.table_locations.getColumns().addAll(LocationColumn, LocRevisitColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
         this.table_locations.setItems(locationData);
+    }
+
+    private ArrayList<String[]> getPossibleTaskings(int date_day, ArrayList<String[]> existingScheduleData,
+                                                    ArrayList<String[]> existingLocationData) {
+        // get date schedule data
+        String[] dateSchedule = new String[numCapability];
+        for (int i=1; i<existingScheduleData.size()-1; i++) {
+            dateSchedule[i] = existingScheduleData.get(i)[date_day-1];
+        }
+        // loop through locations row data
+        ArrayList<String[]> taskingsData = new ArrayList<String[]>();
+        for (int i=0; i<existingLocationData.size(); i++) {
+            String[] currentLocation = existingLocationData.get(i);
+            int numAdditionalRows = 2;
+            String[] newData = new String[numAdditionalRows+numCapability];
+            newData[0] = currentLocation[0]; // location name
+            newData[1] = currentLocation[1]; // location revisit
+            for (int j=numAdditionalRows; j<currentLocation.length-numAdditionalRows; j++) {
+                if (currentLocation[j].equals("1") && !dateSchedule[j-1].equals("NIL")) {
+                    newData[j] = "1";
+                } else {
+                    newData[j] = "0";
+                }
+            }
+            taskingsData.add(newData);
+        }
+        return taskingsData;
     }
 
     @FXML
     public void loadTaskings () {
+        this.table_taskings.getColumns().clear();
+        this.table_taskings.getItems().clear();
+
         // get date selected
         LocalDate selected = this.picker_month_year.getValue();
         if (selected == null) {
@@ -511,18 +548,50 @@ public class Controller {
         // get required file data
         ArrayList<String[]> existingScheduleData = readCSVData(scheduleFile);
         ArrayList<String[]> existingLocationData = readCSVData(locationsFile);
-        // get date schedule data
-        String[] dateSchedule = {};
-        for (int i=0; i<existingScheduleData.size(); i++) {
-            dateSchedule[i] = existingScheduleData.get(i)[date_day-1];
+        // generate possible taskings
+        ArrayList<String[]> possibleTaskings = getPossibleTaskings(date_day, existingScheduleData, existingLocationData);
+        // load data into table
+        for (int i = 0; i < possibleTaskings.size(); i++) {
+            String location = possibleTaskings.get(i)[0];
+            String loc_revisit = possibleTaskings.get(i)[1];
+            String capability_ability_A = possibleTaskings.get(i)[2];
+            String capability_ability_B = possibleTaskings.get(i)[3];
+            String capability_ability_C = possibleTaskings.get(i)[4];
+            String capability_ability_D = possibleTaskings.get(i)[5];
+
+            Location newLocation = new Location(location, loc_revisit, capability_ability_A, capability_ability_B, capability_ability_C, capability_ability_D);
+            locationPossibilityData.add(newLocation);
         }
-        // loop through locations row data
-        ArrayList<String[]> taskingsData = new ArrayList<String[]>();
-        for (int i=0; i<existingLocationData.size(); i++) {
-            String[] currentLocation = existingLocationData.get(i);
-            // compare schedule and location data
-            // ...
-        }
+
+        // create columns
+        TableColumn LocationColumn = new TableColumn("Location");
+        LocationColumn.setCellValueFactory(new PropertyValueFactory<Location, String>("Location"));
+        LocationColumn.setText("Location");
+
+        TableColumn LocRevisitColumn = new TableColumn("Revisit");
+        LocRevisitColumn.setCellValueFactory(new PropertyValueFactory<Location, Integer>("Revisit"));
+        LocRevisitColumn.setText("Revisit (days)");
+
+        TableColumn CapabilityA = new TableColumn("CapabilityA");
+        CapabilityA.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityA"));
+        CapabilityA.setText("Capability A");
+
+        TableColumn CapabilityB = new TableColumn("CapabilityB");
+        CapabilityB.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityB"));
+        CapabilityB.setText("Capability B");
+
+        TableColumn CapabilityC = new TableColumn("CapabilityC");
+        CapabilityC.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityC"));
+        CapabilityC.setText("Capability C");
+
+        TableColumn CapabilityD = new TableColumn("CapabilityD");
+        CapabilityD.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityD"));
+        CapabilityD.setText("Capability D");
+
+        // load data into TableView
+        this.table_taskings.setEditable(false);
+        this.table_taskings.getColumns().addAll(LocationColumn, LocRevisitColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
+        this.table_taskings.setItems(locationPossibilityData);
     }
 
     @FXML

@@ -5,6 +5,7 @@ import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.control.cell.TreeItemPropertyValueFactory;
 import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
@@ -42,7 +43,7 @@ public class Controller {
     protected Integer num_month_days = YearMonth.now().lengthOfMonth();
 
     // table views in titled panes
-    @FXML private TableView table_schedule;
+    @FXML private TreeTableView table_schedule;
     @FXML private TableView table_locations;
     @FXML private TableView table_taskings;
 
@@ -232,7 +233,9 @@ public class Controller {
             }
             schedule_filename_string = "Schedule_"+month_short+"_"+year+".csv";
             schedule_filepath = Paths.get(data_directory_string+schedule_filename_string);
+            // load fields
             loadSchedule();
+            loadTaskings();
         }
     }
 
@@ -261,10 +264,14 @@ public class Controller {
             if (category_id == -1) {
                 return null;
             }
-            // include/overwrite timing into array
+            // include timing into array
             ArrayList<String[]> existingScheduleData = readCSVData(file);
             String[] arrayData = existingScheduleData.get(category_id+1);
-            arrayData[date_day_int-1] = timeStart+"H-"+timeEnd+ 'H';
+            if (arrayData[date_day_int-1].equals("NIL")) {
+                arrayData[date_day_int-1] = timeStart+"H-"+timeEnd+'H';
+            } else {
+                arrayData[date_day_int-1] = arrayData[date_day_int-1]+" "+timeStart+"H-"+timeEnd+'H';
+            }
             existingScheduleData.set(category_id+1, arrayData);
             return existingScheduleData;
 
@@ -311,7 +318,7 @@ public class Controller {
                     if (j == num_days_month - 1) {
                         currentString = currentString + currentArray[j];
                     } else {
-                            currentString = currentString + currentArray[j] + ",";
+                        currentString = currentString + currentArray[j] + ",";
 
                     }
                 }
@@ -351,7 +358,6 @@ public class Controller {
     protected void loadSchedule() {
 
         this.table_schedule.getColumns().clear();
-        this.table_schedule.getItems().clear();
 
         // check array length
         schedule_filepath = Paths.get(data_directory_string+schedule_filename_string);
@@ -380,42 +386,90 @@ public class Controller {
 
         if (schedule_file_data.size() == numRows) {
             // load schedule data
+            String date_month = schedule_filename_string.split("_")[1];
+            String date_year = schedule_filename_string.split("_")[2].split("/.")[0];
+            TreeItem root = new TreeItem(new ActivityDateTime(date_month+" "+date_year,
+                    "...", "...", "...", "..."));
             for (int i=0; i<num_month_days; i++) {
                 String date = schedule_file_data.get(0)[i];
-                String capability_time_A = schedule_file_data.get(1)[i];
-                String capability_time_B = schedule_file_data.get(2)[i];
-                String capability_time_C = schedule_file_data.get(3)[i];
-                String capability_time_D = schedule_file_data.get(4)[i];
+                String[] capability_time_A = schedule_file_data.get(1)[i].split(" ");
+                String[] capability_time_B = schedule_file_data.get(2)[i].split(" ");
+                String[] capability_time_C = schedule_file_data.get(3)[i].split(" ");
+                String[] capability_time_D = schedule_file_data.get(4)[i].split(" ");
 
-                ActivityDateTime newDay = new ActivityDateTime(date, capability_time_A, capability_time_B, capability_time_C, capability_time_D);
-                scheduleData.add(newDay);
+                TreeItem date_day = null;
+                if (capability_time_A.length > 1 || capability_time_B.length > 1 ||
+                        capability_time_C.length > 1 || capability_time_D.length > 1) {
+                    // create new root node
+                    date_day = new TreeItem(new ActivityDateTime(date, capability_time_A[0],
+                            capability_time_B[0], capability_time_C[0], capability_time_D[0]));
+                    // find the largest string array
+                    int largest_size = capability_time_A.length;
+                    if (capability_time_B.length > largest_size) {
+                        largest_size = capability_time_B.length;
+                    }
+                    if (capability_time_C.length > largest_size) {
+                        largest_size = capability_time_C.length;
+                    }
+                    if (capability_time_D.length > largest_size) {
+                        largest_size = capability_time_D.length;
+                    }
+                    // loop through all string array
+                    for (int j=1; j<largest_size; j++) {
+                        String newA = "NIL";
+                        if (j < capability_time_A.length) {
+                            newA = capability_time_A[j];
+                        }
+                        String newB = "NIL";
+                        if (j < capability_time_B.length) {
+                            newB = capability_time_B[j];
+                        }
+                        String newC = "NIL";
+                        if (j < capability_time_C.length) {
+                            newC = capability_time_C[j];
+                        }
+                        String newD = "NIL";
+                        if (j < capability_time_D.length) {
+                            newD = capability_time_D[j];
+                        }
+                        TreeItem newNode = new TreeItem(new ActivityDateTime("...", newA, newB, newC, newD));
+                        date_day.getChildren().add(newNode);
+                    }
+
+                } else {
+                    date_day = new TreeItem(new ActivityDateTime(date, capability_time_A[0],
+                            capability_time_B[0], capability_time_C[0], capability_time_D[0]));
+                }
+                root.getChildren().add(date_day);
             }
 
             // create columns
-            TableColumn DateColumn = new TableColumn("Date");
-            DateColumn.setCellValueFactory(new PropertyValueFactory<ActivityDateTime, String>("Date"));
+            TreeTableColumn DateColumn = new TreeTableColumn("Date");
+            DateColumn.setCellValueFactory(new TreeItemPropertyValueFactory<ActivityDateTime, String>("Date"));
             DateColumn.setText("Date");
 
-            TableColumn CapabilityA = new TableColumn("CapabilityA");
-            CapabilityA.setCellValueFactory(new PropertyValueFactory<ActivityDateTime, String>("CapabilityA"));
+            TreeTableColumn CapabilityA = new TreeTableColumn("CapabilityA");
+            CapabilityA.setCellValueFactory(new TreeItemPropertyValueFactory<ActivityDateTime, String>("CapabilityA"));
             CapabilityA.setText("Capability A");
 
-            TableColumn CapabilityB = new TableColumn("CapabilityB");
-            CapabilityB.setCellValueFactory(new PropertyValueFactory<ActivityDateTime, String>("CapabilityB"));
+            TreeTableColumn CapabilityB = new TreeTableColumn("CapabilityB");
+            CapabilityB.setCellValueFactory(new TreeItemPropertyValueFactory<ActivityDateTime, String>("CapabilityB"));
             CapabilityB.setText("Capability B");
 
-            TableColumn CapabilityC = new TableColumn("CapabilityC");
-            CapabilityC.setCellValueFactory(new PropertyValueFactory<ActivityDateTime, String>("CapabilityC"));
+            TreeTableColumn CapabilityC = new TreeTableColumn("CapabilityC");
+            CapabilityC.setCellValueFactory(new TreeItemPropertyValueFactory<ActivityDateTime, String>("CapabilityC"));
             CapabilityC.setText("Capability C");
 
-            TableColumn CapabilityD = new TableColumn("CapabilityD");
-            CapabilityD.setCellValueFactory(new PropertyValueFactory<ActivityDateTime, String>("CapabilityD"));
+            TreeTableColumn CapabilityD = new TreeTableColumn("CapabilityD");
+            CapabilityD.setCellValueFactory(new TreeItemPropertyValueFactory<ActivityDateTime, String>("CapabilityD"));
             CapabilityD.setText("Capability D");
 
             // load data into TableView
             this.table_schedule.setEditable(false);
             this.table_schedule.getColumns().addAll(DateColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
-            this.table_schedule.setItems(scheduleData);
+            this.table_schedule.setRoot(root);
+            this.table_schedule.setShowRoot(false);
+            root.setExpanded(true);
         }
     }
 
@@ -637,6 +691,10 @@ public class Controller {
         LocalDate date = sch_delete_date.getValue();
         String category = sch_delete_category.getText();
         String startTime = sch_delete_start_time.getText();
+        if (date == null || category.isEmpty()|| startTime.isEmpty()) {
+            System.out.println("one of the delete fields is invalid or empty");
+            return;
+        }
         // Button btn_schedule_delete
         String[] date_split = date.toString().split("-");
         String date_year = String.valueOf(date_split[0]);
@@ -647,19 +705,40 @@ public class Controller {
         File dataFile = findCSV(date_month,date_year);
         if (dataFile != null){
             int category_id = getCategoryId(category);
-            ArrayList<String[]> scheduleData = readCSVData(dataFile);
+            ArrayList<String[]> currentScheduleData = readCSVData(dataFile);
             // check if start time exists
             int date_day_int = Integer.parseInt(date_day);
-            String dayData = scheduleData.get(category_id+1)[-1];
-            String timeStart = dayData.split("-")[0];
-            if (timeStart.equals(startTime)) {
-                // set time to NIL
-                String[] arrayData = scheduleData.get(category_id+1);
-                arrayData[date_day_int-1] = "NIL";
-                scheduleData.set(category_id+1, arrayData);
-            } else {
-                System.out.println("Invalid start time provided");
+            String dayData = currentScheduleData.get(category_id+1)[date_day_int-1];
+            // get all timings
+            String[] dataTimings = dayData.split(" ");
+            ArrayList<String> allTimings = new ArrayList<String>();
+            if (!(dataTimings.length == 1 && dataTimings[0].equals("NIL"))) {
+                for (int i=0; i<dataTimings.length; i++) {
+                    String timeStart = dataTimings[i].split("-")[0];
+                    if(!timeStart.equals(startTime+"H")) {
+                        allTimings.add(dataTimings[i]);
+                    }
+                }
             }
+            // set data in array
+            String[] arrayData = currentScheduleData.get(category_id+1);
+            if (allTimings.size() == 0) {
+                // set time to NIL
+                arrayData[date_day_int-1] = "NIL";
+            } else {
+                String newData = "";
+                for (int i=0; i<allTimings.size(); i++) {
+                    if (i == allTimings.size()-1) {
+                        newData = newData + allTimings.get(i);
+                    } else {
+                        newData = newData + allTimings.get(i) + " ";
+                    }
+                }
+                arrayData[date_day_int-1] = newData;
+                System.out.println(newData);
+            }
+            currentScheduleData.set(category_id+1, arrayData);
+            writeScheduleFile(currentScheduleData, date_month, date_year);
         } else {
             System.out.println("Invalid month or year provided");
         }

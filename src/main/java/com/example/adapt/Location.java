@@ -3,15 +3,17 @@ package com.example.adapt;
 public class Location {
 
     private String Location_Name;
+    private int Location_Priority;
     private int Location_Revisit_Rate;
     private Boolean CapabilityA;
     private Boolean CapabilityB;
     private Boolean CapabilityC;
     private Boolean CapabilityD;
 
-    public Location(String location_name, String loc_revisit,
+    public Location(String location_name, String loc_priority, String loc_revisit,
                     String loc_cap_A, String loc_cap_B, String loc_cap_C, String loc_cap_D) {
         this.Location_Name = location_name;
+        this.Location_Priority = Integer.parseInt(loc_priority);
         this.Location_Revisit_Rate = Integer.parseInt(loc_revisit);
         this.CapabilityA = check_boolean_input(loc_cap_A);
         this.CapabilityB = check_boolean_input(loc_cap_B);
@@ -35,7 +37,9 @@ public class Location {
         return this.Location_Name;
     }
 
-    public int getRevisit() {return this.Location_Revisit_Rate; }
+    public int getPriority() { return this.Location_Priority; }
+
+    public int getRevisit() { return this.Location_Revisit_Rate; }
 
     public Boolean getCapabilityA() {
         return this.CapabilityA;

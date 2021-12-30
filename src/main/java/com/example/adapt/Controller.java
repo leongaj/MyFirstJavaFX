@@ -45,7 +45,7 @@ public class Controller {
     // table views in titled panes
     @FXML private TreeTableView table_schedule;
     @FXML private TableView table_locations;
-    @FXML private TableView table_taskings;
+    @FXML private TreeTableView table_taskings;
 
     // upload buttons
     @FXML private Button btn_upload_schedule;
@@ -67,6 +67,7 @@ public class Controller {
     // insert new location
     @FXML private TextField loc_insert_name;
     @FXML private TextField loc_insert_priority;
+    @FXML private TextField loc_insert_revisit;
     @FXML private TextField loc_insert_catA;
     @FXML private TextField loc_insert_catB;
     @FXML private TextField loc_insert_catC;
@@ -502,13 +503,14 @@ public class Controller {
         // load location data
         for (int i = 0; i < locations_file_data.size(); i++) {
             String location = locations_file_data.get(i)[0];
-            String loc_revisit = locations_file_data.get(i)[1];
-            String capability_ability_A = locations_file_data.get(i)[2];
-            String capability_ability_B = locations_file_data.get(i)[3];
-            String capability_ability_C = locations_file_data.get(i)[4];
-            String capability_ability_D = locations_file_data.get(i)[5];
+            String loc_priority = locations_file_data.get(i)[1];
+            String loc_revisit = locations_file_data.get(i)[2];
+            String capability_ability_A = locations_file_data.get(i)[3];
+            String capability_ability_B = locations_file_data.get(i)[4];
+            String capability_ability_C = locations_file_data.get(i)[5];
+            String capability_ability_D = locations_file_data.get(i)[6];
 
-            Location newLocation = new Location(location, loc_revisit, capability_ability_A, capability_ability_B, capability_ability_C, capability_ability_D);
+            Location newLocation = new Location(location, loc_priority, loc_revisit, capability_ability_A, capability_ability_B, capability_ability_C, capability_ability_D);
             locationData.add(newLocation);
         }
 
@@ -517,9 +519,13 @@ public class Controller {
         LocationColumn.setCellValueFactory(new PropertyValueFactory<Location, String>("Location"));
         LocationColumn.setText("Location");
 
+        TableColumn LocPriorityColumn = new TableColumn("Priority");
+        LocPriorityColumn.setCellValueFactory(new PropertyValueFactory<Location, Integer>("Priority"));
+        LocPriorityColumn.setText("Priority");
+
         TableColumn LocRevisitColumn = new TableColumn("Revisit");
         LocRevisitColumn.setCellValueFactory(new PropertyValueFactory<Location, Integer>("Revisit"));
-        LocRevisitColumn.setText("Revisit (days)");
+        LocRevisitColumn.setText("Revisit (hours)");
 
         TableColumn CapabilityA = new TableColumn("CapabilityA");
         CapabilityA.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityA"));
@@ -539,7 +545,7 @@ public class Controller {
 
         // load data into TableView
         this.table_locations.setEditable(false);
-        this.table_locations.getColumns().addAll(LocationColumn, LocRevisitColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
+        this.table_locations.getColumns().addAll(LocationColumn, LocPriorityColumn, LocRevisitColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
         this.table_locations.setItems(locationData);
     }
 
@@ -554,10 +560,11 @@ public class Controller {
         ArrayList<String[]> taskingsData = new ArrayList<String[]>();
         for (int i=0; i<existingLocationData.size(); i++) {
             String[] currentLocation = existingLocationData.get(i);
-            int numAdditionalRows = 2;
+            int numAdditionalRows = 3;
             String[] newData = new String[numAdditionalRows+numCapability];
             newData[0] = currentLocation[0]; // location name
-            newData[1] = currentLocation[1]; // location revisit
+            newData[1] = currentLocation[1]; // location priority
+            newData[2] = currentLocation[2]; // location revisit
             for (int j=numAdditionalRows; j<currentLocation.length-numAdditionalRows; j++) {
                 if (currentLocation[j].equals("1") && !dateSchedule[j-1].equals("NIL")) {
                     newData[j] = "1";
@@ -570,10 +577,64 @@ public class Controller {
         return taskingsData;
     }
 
+    private String convertTimeToString(int currentTime) {
+
+        int currentHours = currentTime/60;
+        int currentMinutes = currentTime-(currentHours*60);
+        String currentMinutes_String = String.valueOf(currentMinutes);
+        if (currentMinutes < 10) {
+            currentMinutes_String = "0"+currentMinutes_String;
+        }
+        String currentTime_String = String.valueOf(currentHours)+currentMinutes_String;
+        if (currentTime_String.length() < 4) { // change to 4 digit timings
+            int addedLength = 4 - currentTime_String.length();
+            currentTime_String = ("0".repeat(addedLength)) + currentTime_String;
+        }
+        //System.out.println(currentTime+" minutes "+ currentTime_String);
+        return currentTime_String;
+    }
+
+    private String[] getLastCapDateTimings(ArrayList<String[]> existingScheduleData, int numCapability) {
+        // get the last tasking date and time for each capability
+        String[] lastTasking = new String[numCapability];
+        String[] lastDates = new String[numCapability];
+        for (int i=0; i<numCapability; i++) {
+            lastTasking[i] = "0000"; // fill empty null array with values
+            lastDates[i] = existingScheduleData.get(0)[0];
+        }
+        for (int i=1; i<existingScheduleData.size(); i++) {
+            for (int j = 0; j < existingScheduleData.get(i).length; j++) {
+                String currentDate = existingScheduleData.get(0)[j];
+                String current_tasking_timings = existingScheduleData.get(i)[j];
+                if (!current_tasking_timings.equals("NIL")) {
+                    int tasking_last = 0;
+                    // get the latest timing from timing(s)
+                    String[] tasking_dataset = current_tasking_timings.split(" ");
+                    for (int k = 0; k < tasking_dataset.length; k++) {
+                        int last_timing = Integer.parseInt(tasking_dataset[k].split("-")[1].substring(0,4));
+                        tasking_last = Integer.max(last_timing, tasking_last);
+                    }
+
+                    int current_timing = Integer.parseInt(lastTasking[i-1]);
+                    lastTasking[i-1] = String.valueOf(Integer.max(current_timing, tasking_last));
+                    if (Integer.max(current_timing, tasking_last) == tasking_last) {
+                        lastDates[i-1] = currentDate;
+                    }
+                }
+            }
+            lastTasking[i-1] = convertTimeToString(Integer.parseInt(lastTasking[i-1]));
+        }
+        // return date and time as one array
+        String[] newArray = new String[numCapability];
+        for (int i=0; i<numCapability; i++) {
+            newArray[i] = lastDates[i] + " " + lastTasking[i];
+        }
+        return newArray;
+    }
+
     @FXML
     public void loadTaskings () {
         this.table_taskings.getColumns().clear();
-        this.table_taskings.getItems().clear();
 
         // get date selected
         LocalDate selected = this.picker_month_year.getValue();
@@ -603,49 +664,147 @@ public class Controller {
         ArrayList<String[]> existingScheduleData = readCSVData(scheduleFile);
         ArrayList<String[]> existingLocationData = readCSVData(locationsFile);
         // generate possible taskings
-        ArrayList<String[]> possibleTaskings = getPossibleTaskings(date_day, existingScheduleData, existingLocationData);
-        // load data into table
-        for (int i = 0; i < possibleTaskings.size(); i++) {
-            String location = possibleTaskings.get(i)[0];
-            String loc_revisit = possibleTaskings.get(i)[1];
-            String capability_ability_A = possibleTaskings.get(i)[2];
-            String capability_ability_B = possibleTaskings.get(i)[3];
-            String capability_ability_C = possibleTaskings.get(i)[4];
-            String capability_ability_D = possibleTaskings.get(i)[5];
+        ArrayList<String[]> bookedTaskings = getPossibleTaskings(date_day, existingScheduleData, existingLocationData);
+        // generate required taskings
+        LocalDate today = LocalDate.now();
+        String today_day = today.toString().split("-")[2];
+        String today_month = today.toString().split("-")[1];
+        String today_short = today_day+"-"+today_month;
 
-            Location newLocation = new Location(location, loc_revisit, capability_ability_A, capability_ability_B, capability_ability_C, capability_ability_D);
+        // get all dates within 2 month period
+        Calendar calendar = Calendar.getInstance();
+
+        // generate a list of dates, including today, for this month
+        ArrayList<String> upcomingDates = new ArrayList<String>();
+        int today_day_int = Integer.parseInt(today_day);
+        int thisMonth_maxDay = YearMonth.of(Integer.parseInt(year), Integer.parseInt(today_month)).lengthOfMonth();
+        int thisMonth_remainingDays = thisMonth_maxDay - today_day_int;
+        for (int j=0; j<thisMonth_remainingDays+1; j++) { // for this month
+            String today_day_str = String.valueOf(today_day_int+j);
+            if (today_day_str.length() == 1) {
+                today_day_str = "0" + today_day_str;
+            }
+            String currentNewDate = today_day_str + "-" + today_month;
+            upcomingDates.add(currentNewDate);
+        }
+        // generate a list of dates, including today, for following months
+        int generateNumMonth = 2; // total number of months to generate
+        for (int j=0; j<generateNumMonth-1; j++) {
+            int nextMonth = Integer.parseInt(today_month) + 1;
+            if (nextMonth > 12) {
+                nextMonth = nextMonth - 12;
+            }
+            int nextMonth_maxDay = YearMonth.of(Integer.parseInt(year), nextMonth).lengthOfMonth();
+            for (int k=0; k<nextMonth_maxDay; k++) { // for next month
+                String currentDay = String.valueOf(k+1);
+                if (currentDay.length() == 1) {
+                    currentDay = "0" + currentDay;
+                }
+                String nextMonth_str = String.valueOf(nextMonth);
+                if (nextMonth_str.length() == 1) {
+                    nextMonth_str = "0" + nextMonth_str;
+                }
+                String currentDate = currentDay + "-" + nextMonth_str;
+                upcomingDates.add(currentDate);
+            }
+        }
+        System.out.println("Calculated number of days for tasking component");
+        // insert timing for each date
+        ArrayList<String> upcomingDatesTimes = new ArrayList<String>();
+        for (int i=0; i<existingLocationData.size(); i++) {
+            String loc_name = existingLocationData.get(i)[0];
+            int priority = Integer.parseInt(existingLocationData.get(i)[1]);
+            int revisit_rate = Integer.parseInt(existingLocationData.get(i)[2]);
+            System.out.println("Computing for " + loc_name + " " + priority + " " + revisit_rate);
+            int remainingMinutes = 0;
+            for (int j=0; j<upcomingDates.size(); j++) {
+                // calculate recurrent timing for days
+                int numOccurrencePerDay = (int) Math.ceil(24.0f/revisit_rate);
+                for (int k=0; k<numOccurrencePerDay; k++) {
+                    //System.out.println("-" + currentTime + " " + revisit_rate + " " + k + " " + remainingMinutes);
+                    String currentDate = upcomingDates.get(j);
+
+                    int currentTime = (k*revisit_rate*60) + remainingMinutes;
+                    //System.out.println(currentTime);
+                    if (currentTime > 1439) {
+                        remainingMinutes = currentTime - 1440;
+                        //System.out.println("- " + remainingMinutes);
+                        currentTime = currentTime - 1440;
+                        if (j != upcomingDates.size()-1) {
+                            currentDate = upcomingDates.get(j+1);
+                        }
+                    } else {
+                        String currentTime_String = convertTimeToString(currentTime);
+                        System.out.println(currentDate + " " + currentTime_String);
+                        upcomingDatesTimes.add(currentDate + " " + currentTime_String);
+                    }
+
+                }
+            }
+        }
+
+
+
+        // loop through dates, generate required tasking on top of booked tasking
+        /*for (int i=0; i<existingLocationData.size(); i++) {
+            int revisit_rate = Integer.parseInt(existingLocationData.get(i)[2]);
+            for (int j=0; j<upcomingCapDates.length; j++) {
+
+            }
+        }*/
+
+        ArrayList<Tasking> requiredTasking = new ArrayList<Tasking>();
+
+        // compile data
+
+        // load data into table
+        TreeItem root = new TreeItem(new Location("root", "0", "0", "...", "...", "...", "..."));
+        for (int i = 0; i < bookedTaskings.size(); i++) {
+            String location = bookedTaskings.get(i)[0];
+            String loc_priority = bookedTaskings.get(i)[1];
+            String loc_revisit = bookedTaskings.get(i)[2];
+            String capability_ability_A = bookedTaskings.get(i)[3];
+            String capability_ability_B = bookedTaskings.get(i)[4];
+            String capability_ability_C = bookedTaskings.get(i)[5];
+            String capability_ability_D = bookedTaskings.get(i)[6];
+
+            Location newLocation = new Location(location, loc_priority, loc_revisit, capability_ability_A, capability_ability_B, capability_ability_C, capability_ability_D);
+            TreeItem newItem = new TreeItem(newLocation);
             locationPossibilityData.add(newLocation);
+            root.getChildren().add(newItem);
         }
 
         // create columns
-        TableColumn LocationColumn = new TableColumn("Location");
-        LocationColumn.setCellValueFactory(new PropertyValueFactory<Location, String>("Location"));
+        TreeTableColumn LocationColumn = new TreeTableColumn("Location");
+        LocationColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Location, String>("Location"));
         LocationColumn.setText("Location");
 
-        TableColumn LocRevisitColumn = new TableColumn("Revisit");
-        LocRevisitColumn.setCellValueFactory(new PropertyValueFactory<Location, Integer>("Revisit"));
-        LocRevisitColumn.setText("Revisit (days)");
+        TreeTableColumn LocRevisitColumn = new TreeTableColumn("Revisit");
+        LocRevisitColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Integer>("Revisit"));
+        LocRevisitColumn.setText("Revisit (hours)");
 
-        TableColumn CapabilityA = new TableColumn("CapabilityA");
-        CapabilityA.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityA"));
+        TreeTableColumn CapabilityA = new TreeTableColumn("CapabilityA");
+        CapabilityA.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityA"));
         CapabilityA.setText("Capability A");
 
-        TableColumn CapabilityB = new TableColumn("CapabilityB");
-        CapabilityB.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityB"));
+        TreeTableColumn CapabilityB = new TreeTableColumn("CapabilityB");
+        CapabilityB.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityB"));
         CapabilityB.setText("Capability B");
 
-        TableColumn CapabilityC = new TableColumn("CapabilityC");
-        CapabilityC.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityC"));
+        TreeTableColumn CapabilityC = new TreeTableColumn("CapabilityC");
+        CapabilityC.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityC"));
         CapabilityC.setText("Capability C");
 
-        TableColumn CapabilityD = new TableColumn("CapabilityD");
-        CapabilityD.setCellValueFactory(new PropertyValueFactory<Location, Boolean>("CapabilityD"));
+        TreeTableColumn CapabilityD = new TreeTableColumn("CapabilityD");
+        CapabilityD.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityD"));
         CapabilityD.setText("Capability D");
 
         // load data into TableView
         this.table_taskings.setEditable(false);
         this.table_taskings.getColumns().addAll(LocationColumn, LocRevisitColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
-        this.table_taskings.setItems(locationPossibilityData);
+        this.table_taskings.setRoot(root);
+        this.table_taskings.setShowRoot(false);
+        root.setExpanded(true);
     }
 
     @FXML
@@ -749,12 +908,13 @@ public class Controller {
     public void btnLocationInsert() {
         String locationName = loc_insert_name.getText();
         String locationPriority = loc_insert_priority.getText();
+        String locationRevisit = loc_insert_revisit.getText();
         String categoryName_A = loc_insert_catA.getText();
         String categoryName_B = loc_insert_catB.getText();
         String categoryName_C = loc_insert_catC.getText();
         String categoryName_D = loc_insert_catD.getText();
         // Button btn_location_insert
-        if (locationName.isEmpty() || locationPriority.isEmpty() || categoryName_A.isEmpty() ||
+        if (locationName.isEmpty() || locationPriority.isEmpty() || locationRevisit.isEmpty() || categoryName_A.isEmpty() ||
                 categoryName_B.isEmpty() || categoryName_C.isEmpty() || categoryName_D.isEmpty()) {
             System.out.println("One of the fields is empty");
             return;
@@ -764,7 +924,7 @@ public class Controller {
 
         if (dataFile.exists()) {
             ArrayList<String[]> csvData = readCSVData(dataFile);
-            String[] newLocation = {locationName, categoryName_A, categoryName_B, categoryName_C, categoryName_D};
+            String[] newLocation = {locationName, locationPriority, locationRevisit, categoryName_A, categoryName_B, categoryName_C, categoryName_D};
             csvData.add(newLocation);
             // create String to be added into file
             String stringData = "";

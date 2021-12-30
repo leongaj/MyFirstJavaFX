@@ -1,11 +1,11 @@
-﻿Target 1,1,1,1,1,1
-Target 2,1,0,1,1,1
-Target 3,1,0,0,1,1
-Target 4,2,0,0,0,1
-Target 5,2,0,1,0,1
-Target 6,2,1,0,0,1
-Target 7,2,1,0,0,0
-Target 8,2,1,0,1,0
-Target 9,2,0,0,1,0
-Target 10,2,0,1,0,0
-Sentosa,2,1,1,0,1
+﻿Target 1,1,1,1,1,1,1
+Target 2,1,1,0,1,1,1
+Target 3,3,24,0,0,1,1
+Target 4,1,2,0,0,0,1
+Target 5,1,2,0,1,0,1
+Target 6,2,5,1,0,0,1
+Target 7,2,7,1,0,0,0
+Target 8,2,12,1,0,1,0
+Target 9,1,2,0,0,1,0
+Target 10,1,2,0,1,0,0
+Sentosa,2,1,1,1,0,1

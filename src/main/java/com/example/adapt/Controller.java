@@ -31,6 +31,8 @@ public class Controller {
     protected final int numRows = numCapability+1;
     protected final String[] CategoryList = {"Category A", "Category B", "Category C", "Category D"};
 
+    protected final int dailyStartTime_Hours = 0; // tasking daily start time in hours, max num is 24
+
     protected String data_directory_string = "src/main/resources/com/example/adapt/";
     protected String schedule_filename_string = "Schedule_OCT_2021.csv";
     protected Path schedule_filepath = Paths.get(data_directory_string+schedule_filename_string);
@@ -253,6 +255,37 @@ public class Controller {
             System.out.println("Error reading or loading file..");
         }
         return compiled_data;
+    }
+
+    private ArrayList<String[]> readNumCSVData(String[] file_paths) {
+        ArrayList<String[]> compiledData = new ArrayList<String[]>();
+        // loop through each file path
+        for (int i=0; i<file_paths.length; i++) {
+            File currentFile = new File(file_paths[i]);
+            if (!currentFile.exists()) {
+                System.out.println(file_paths[i] + " does not exist.");
+                continue;
+            }
+            // get data of each file
+            ArrayList<String[]> currentData = readCSVData(currentFile);
+            if (compiledData.size() < 1) {
+                compiledData = currentData;
+            } else {
+                // copy original and new data into single arraylist
+                for (int j=0; j<compiledData.size(); j++) {
+                    int newLength = compiledData.get(j).length + currentData.get(j).length;
+                    String[] currentArray = new String[newLength];
+                    for (int k=0; k<compiledData.get(j).length; k++) {
+                        currentArray[k] = compiledData.get(j)[k];
+                    }
+                    for (int k=0; k<currentData.get(j).length; k++) {
+                        currentArray[compiledData.get(j).length+k] = currentData.get(j)[k];
+                    }
+                    compiledData.set(j, currentArray);
+                }
+            }
+        }
+        return compiledData;
     }
 
     private ArrayList<String[]> writeScheduleData(File file, String category, String date_day, String timeStart, String timeEnd) {
@@ -632,6 +665,54 @@ public class Controller {
         return newArray;
     }
 
+    private String[] findLocationRow(ArrayList<String[]> existingLocationData, String LocationName) {
+        // get entire row data with provided location name
+        int rowSize = existingLocationData.size();
+        String[] selectedLocRow = new String[rowSize];
+        for (int i=0; i<existingLocationData.size(); i++) {
+            String currentLocName = existingLocationData.get(i)[0];
+            if (currentLocName.equals(LocationName)) {
+                selectedLocRow = existingLocationData.get(i);
+            }
+        }
+        return selectedLocRow;
+    }
+
+    private String[] getAvailableCapByDate(ArrayList<String[]> existingScheduleData, String date) {
+        // return capability availability time based on date provided
+        // returns null if date does not match
+        int foundIndex = -1;
+        for (int k=0; k<existingScheduleData.get(0).length; k++) {
+            if(existingScheduleData.get(0)[k].equals(date)) {
+                foundIndex = k;
+                break;
+            }
+        }
+        if (foundIndex == -1) {
+            return null;
+        } else {
+            String[] wantedData = new String[existingScheduleData.size()];
+            for (int k=0; k<existingScheduleData.size(); k++) {
+                wantedData[k] = existingScheduleData.get(k)[foundIndex];
+            }
+            return wantedData;
+        }
+    }
+
+    private int[] getStartEndTime_Minutes(String timeRange) {
+        // "0900H-1100H" to String{"540", "660"}
+        int[] startEndTime = new int[2];
+        String startTime = timeRange.substring(0,4);
+        int startTime_Hours = Integer.parseInt(startTime.substring(0,2))*60;
+        int startTime_Minutes = startTime_Hours + Integer.parseInt(startTime.substring(2,4));
+        startEndTime[0] = startTime_Minutes;
+        String endTime = timeRange.substring(7,11);
+        int endTime_Hours = Integer.parseInt(endTime.substring(0,2))*60;
+        int endTime_Minutes = endTime_Hours + Integer.parseInt(endTime.substring(2,4));
+        startEndTime[1] = endTime_Minutes;
+        return startEndTime;
+    }
+
     @FXML
     public void loadTaskings () {
         this.table_taskings.getColumns().clear();
@@ -660,103 +741,37 @@ public class Controller {
             System.out.println("required files are not available");
             return;
         }
-        // get required file data
-        ArrayList<String[]> existingScheduleData = readCSVData(scheduleFile);
+        // get required schedule file data
+        int numMonths = 2;
+        String[] scheduleDataFilepath = new String[numMonths];
+        for (int k=0; k<numMonths; k++) { // generate file path with input month and year
+            int nextFewMonths = month_int + k;
+            if (nextFewMonths > 12) {
+                nextFewMonths = nextFewMonths - 12;
+            }
+            System.out.println("Getting "+nextFewMonths+"_"+year + " filepath and data");
+            scheduleDataFilepath[k] = data_directory_string+"Schedule_"+month_numToString(nextFewMonths)+"_"+year+".csv";
+        }
+        ArrayList<String[]> existingScheduleData = readNumCSVData(scheduleDataFilepath);
+        System.out.println("Compiled file paths data");
+        // get required location data
         ArrayList<String[]> existingLocationData = readCSVData(locationsFile);
         // generate possible taskings
         ArrayList<String[]> bookedTaskings = getPossibleTaskings(date_day, existingScheduleData, existingLocationData);
         // generate required taskings
         LocalDate today = LocalDate.now();
+        String today_year = today.toString().split("-")[0];
         String today_day = today.toString().split("-")[2];
         String today_month = today.toString().split("-")[1];
         String today_short = today_day+"-"+today_month;
-
-        // get all dates within 2 month period
-        Calendar calendar = Calendar.getInstance();
-
-        // generate a list of dates, including today, for this month
-        ArrayList<String> upcomingDates = new ArrayList<String>();
-        int today_day_int = Integer.parseInt(today_day);
-        int thisMonth_maxDay = YearMonth.of(Integer.parseInt(year), Integer.parseInt(today_month)).lengthOfMonth();
-        int thisMonth_remainingDays = thisMonth_maxDay - today_day_int;
-        for (int j=0; j<thisMonth_remainingDays+1; j++) { // for this month
-            String today_day_str = String.valueOf(today_day_int+j);
-            if (today_day_str.length() == 1) {
-                today_day_str = "0" + today_day_str;
-            }
-            String currentNewDate = today_day_str + "-" + today_month;
-            upcomingDates.add(currentNewDate);
-        }
-        // generate a list of dates, including today, for following months
-        int generateNumMonth = 2; // total number of months to generate
-        for (int j=0; j<generateNumMonth-1; j++) {
-            int nextMonth = Integer.parseInt(today_month) + 1;
-            if (nextMonth > 12) {
-                nextMonth = nextMonth - 12;
-            }
-            int nextMonth_maxDay = YearMonth.of(Integer.parseInt(year), nextMonth).lengthOfMonth();
-            for (int k=0; k<nextMonth_maxDay; k++) { // for next month
-                String currentDay = String.valueOf(k+1);
-                if (currentDay.length() == 1) {
-                    currentDay = "0" + currentDay;
-                }
-                String nextMonth_str = String.valueOf(nextMonth);
-                if (nextMonth_str.length() == 1) {
-                    nextMonth_str = "0" + nextMonth_str;
-                }
-                String currentDate = currentDay + "-" + nextMonth_str;
-                upcomingDates.add(currentDate);
-            }
-        }
-        System.out.println("Calculated number of days for tasking component");
-        // insert timing for each date
-        ArrayList<String> upcomingDatesTimes = new ArrayList<String>();
-        for (int i=0; i<existingLocationData.size(); i++) {
-            String loc_name = existingLocationData.get(i)[0];
-            int priority = Integer.parseInt(existingLocationData.get(i)[1]);
-            int revisit_rate = Integer.parseInt(existingLocationData.get(i)[2]);
-            System.out.println("Computing for " + loc_name + " " + priority + " " + revisit_rate);
-            int remainingMinutes = 0;
-            for (int j=0; j<upcomingDates.size(); j++) {
-                // calculate recurrent timing for days
-                int numOccurrencePerDay = (int) Math.ceil(24.0f/revisit_rate);
-                for (int k=0; k<numOccurrencePerDay; k++) {
-                    //System.out.println("-" + currentTime + " " + revisit_rate + " " + k + " " + remainingMinutes);
-                    String currentDate = upcomingDates.get(j);
-
-                    int currentTime = (k*revisit_rate*60) + remainingMinutes;
-                    //System.out.println(currentTime);
-                    if (currentTime > 1439) {
-                        remainingMinutes = currentTime - 1440;
-                        //System.out.println("- " + remainingMinutes);
-                        currentTime = currentTime - 1440;
-                        if (j != upcomingDates.size()-1) {
-                            currentDate = upcomingDates.get(j+1);
-                        }
-                    } else {
-                        String currentTime_String = convertTimeToString(currentTime);
-                        System.out.println(currentDate + " " + currentTime_String);
-                        upcomingDatesTimes.add(currentDate + " " + currentTime_String);
-                    }
-
-                }
-            }
-        }
-
-
-
-        // loop through dates, generate required tasking on top of booked tasking
-        /*for (int i=0; i<existingLocationData.size(); i++) {
-            int revisit_rate = Integer.parseInt(existingLocationData.get(i)[2]);
-            for (int j=0; j<upcomingCapDates.length; j++) {
-
-            }
-        }*/
-
-        ArrayList<Tasking> requiredTasking = new ArrayList<Tasking>();
-
-        // compile data
-
+        // set starting date
+        Date date_tomorrow = new Date();
+        date_tomorrow.setHours(dailyStartTime_Hours);
+        date_tomorrow.setMinutes(0);
+        date_tomorrow.setDate(date_tomorrow.getDate()+1);
+        // continue from here ...
+        Date d = new Date();
+        System.out.println(d.toString());
         // load data into table
         TreeItem root = new TreeItem(new Location("root", "0", "0", "...", "...", "...", "..."));
         for (int i = 0; i < bookedTaskings.size(); i++) {

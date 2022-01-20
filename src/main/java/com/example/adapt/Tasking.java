@@ -9,7 +9,7 @@ public class Tasking {
     private int Priority;
     private int Revisit_Hours;
 
-    public Tasking(String Location, int Priority, int Revisit_Hours, String CapabilityType, String Date_short, String Time) {
+    public Tasking(String Date_short, String Time, int Priority, int Revisit_Hours, String CapabilityType, String Location) {
         this.Location = Location;
         this.CapabilityType = CapabilityType;
         this.Date_short = Date_short;

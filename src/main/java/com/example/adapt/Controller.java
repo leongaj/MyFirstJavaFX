@@ -38,7 +38,10 @@ public class Controller {
     protected Path schedule_filepath = Paths.get(data_directory_string+schedule_filename_string);
 
     protected String locations_filename_string = "List_Target.csv";
-    protected Path locations_filepath = Paths.get(data_directory_string+ locations_filename_string);
+    protected Path locations_filepath = Paths.get(data_directory_string+locations_filename_string);
+
+    protected String tasking_filename_string = "Tasking_Schedule_2022.csv";
+    protected Path tasking_filepath = Paths.get(data_directory_string+tasking_filename_string);
 
     // calculate date month
     protected String month = YearMonth.now().getMonth().getDisplayName(TextStyle.SHORT, Locale.ENGLISH);
@@ -47,7 +50,7 @@ public class Controller {
     // table views in titled panes
     @FXML private TreeTableView table_schedule;
     @FXML private TableView table_locations;
-    @FXML private TreeTableView table_taskings;
+    @FXML private TreeTableView table_tasking;
 
     // upload buttons
     @FXML private Button btn_upload_schedule;
@@ -582,34 +585,6 @@ public class Controller {
         this.table_locations.setItems(locationData);
     }
 
-    private ArrayList<String[]> getPossibleTaskings(int date_day, ArrayList<String[]> existingScheduleData,
-                                                    ArrayList<String[]> existingLocationData) {
-        // get date schedule data
-        String[] dateSchedule = new String[numCapability];
-        for (int i=1; i<existingScheduleData.size()-1; i++) {
-            dateSchedule[i] = existingScheduleData.get(i)[date_day-1];
-        }
-        // loop through locations row data
-        ArrayList<String[]> taskingsData = new ArrayList<String[]>();
-        for (int i=0; i<existingLocationData.size(); i++) {
-            String[] currentLocation = existingLocationData.get(i);
-            int numAdditionalRows = 3;
-            String[] newData = new String[numAdditionalRows+numCapability];
-            newData[0] = currentLocation[0]; // location name
-            newData[1] = currentLocation[1]; // location priority
-            newData[2] = currentLocation[2]; // location revisit
-            for (int j=numAdditionalRows; j<currentLocation.length-numAdditionalRows; j++) {
-                if (currentLocation[j].equals("1") && !dateSchedule[j-1].equals("NIL")) {
-                    newData[j] = "1";
-                } else {
-                    newData[j] = "0";
-                }
-            }
-            taskingsData.add(newData);
-        }
-        return taskingsData;
-    }
-
     private String convertTimeToString(int currentTime) {
 
         int currentHours = currentTime/60;
@@ -713,16 +688,34 @@ public class Controller {
         return startEndTime;
     }
 
+    private ArrayList<String[]> getTaskings(String year) {
+        String tasking_filename_string = "Tasking_Schedule_"+year+".csv";
+        Path tasking_filepath = Paths.get(data_directory_string+tasking_filename_string);
+        File taskingFile = new File(tasking_filepath.toString());
+        return readCSVData(taskingFile);
+    }
+
+    private ArrayList<String[]> getMultipleYears_Taskings(String[] years) {
+        ArrayList<String[]> compiledYearTasking = new ArrayList<String[]>();
+        for (int i=0; i<years.length; i++) {
+            ArrayList<String[]> current = getTaskings(years[i]);
+            for (int j=0; j< current.size(); j++) {
+                compiledYearTasking.add(current.get(j));
+            }
+        }
+        return compiledYearTasking;
+    }
+
     @FXML
     public void loadTaskings () {
-        this.table_taskings.getColumns().clear();
-
         // get date selected
         LocalDate selected = this.picker_month_year.getValue();
         if (selected == null) {
             System.out.println("tasking date not selected");
             return;
         }
+        // clear treetableview
+        this.table_tasking.getColumns().clear();
         // get date
         String month = selected.getMonth().toString();
         String month_short = month.substring(0,3);
@@ -756,8 +749,6 @@ public class Controller {
         System.out.println("Compiled file paths data");
         // get required location data
         ArrayList<String[]> existingLocationData = readCSVData(locationsFile);
-        // generate possible taskings
-        ArrayList<String[]> bookedTaskings = getPossibleTaskings(date_day, existingScheduleData, existingLocationData);
         // generate required taskings
         LocalDate today = LocalDate.now();
         String today_year = today.toString().split("-")[0];
@@ -769,57 +760,57 @@ public class Controller {
         date_tomorrow.setHours(dailyStartTime_Hours);
         date_tomorrow.setMinutes(0);
         date_tomorrow.setDate(date_tomorrow.getDate()+1);
-        // continue from here ...
-        Date d = new Date();
-        System.out.println(d.toString());
-        // load data into table
-        TreeItem root = new TreeItem(new Location("root", "0", "0", "...", "...", "...", "..."));
-        for (int i = 0; i < bookedTaskings.size(); i++) {
-            String location = bookedTaskings.get(i)[0];
-            String loc_priority = bookedTaskings.get(i)[1];
-            String loc_revisit = bookedTaskings.get(i)[2];
-            String capability_ability_A = bookedTaskings.get(i)[3];
-            String capability_ability_B = bookedTaskings.get(i)[4];
-            String capability_ability_C = bookedTaskings.get(i)[5];
-            String capability_ability_D = bookedTaskings.get(i)[6];
 
-            Location newLocation = new Location(location, loc_priority, loc_revisit, capability_ability_A, capability_ability_B, capability_ability_C, capability_ability_D);
-            TreeItem newItem = new TreeItem(newLocation);
-            locationPossibilityData.add(newLocation);
-            root.getChildren().add(newItem);
+        ArrayList<Tasking> compiledTasking = new ArrayList<Tasking>();
+        String[] years = {String.valueOf(Integer.parseInt(today_year)-1), today_year, String.valueOf(Integer.parseInt(today_year)+1)};
+        ArrayList<String[]> taskings = getMultipleYears_Taskings(years);
+        for(int i=0; i<taskings.size(); i++) {
+            String current_date = taskings.get(i)[0];
+            String current_time = taskings.get(i)[1];
+            String current_StartTime = taskings.get(i)[1].split("-")[0];
+            String current_EndTime = taskings.get(i)[1].split("-")[1];
+            String current_capability = taskings.get(i)[2];
+            String[] multiple_locations = taskings.get(i)[3].split(";");
+            for (int j=0; j<multiple_locations.length; j++) {
+                String current_location = multiple_locations[j];
+                String[] locationRow = findLocationRow(existingLocationData,current_location);
+                if (locationRow[0] == null) continue;
+                int priority = Integer.parseInt(locationRow[1]);
+                int revisit_rate = Integer.parseInt(locationRow[2]);
+                Tasking new_tasking = new Tasking(current_date,current_time,priority,revisit_rate,current_capability, current_location);
+                compiledTasking.add(new_tasking);
+            }
         }
+        System.out.println("Compiled tasking data..");
 
-        // create columns
-        TreeTableColumn LocationColumn = new TreeTableColumn("Location");
-        LocationColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Location, String>("Location"));
-        LocationColumn.setText("Location");
+        TreeTableColumn<Tasking, String> dateColumn = new TreeTableColumn<Tasking, String>("Date_short");
+        dateColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Tasking, String>("Date_short"));
+        dateColumn.setText("Date");
+        TreeTableColumn<Tasking, String> timeColumn = new TreeTableColumn<Tasking, String>("Time");
+        timeColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Tasking, String>("Time"));
+        timeColumn.setText("Time");
+        TreeTableColumn<Tasking, String> priorityColumn = new TreeTableColumn<Tasking, String>("Priority");
+        priorityColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Tasking, String>("Priority"));
+        priorityColumn.setText("Priority");
+        TreeTableColumn<Tasking, String> revisitRateColumn = new TreeTableColumn<Tasking, String>("Revisit_Hours");
+        revisitRateColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Tasking, String>("Revisit_Hours"));
+        revisitRateColumn.setText("Revisit (Hours)");
+        TreeTableColumn<Tasking, String> capabilityColumn = new TreeTableColumn<Tasking, String>("CapabilityType");
+        capabilityColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Tasking, String>("CapabilityType"));
+        capabilityColumn.setText("Capability");
+        TreeTableColumn<Tasking, String> locationColumn = new TreeTableColumn<Tasking, String>("Location");
+        locationColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Tasking, String>("Location"));
+        locationColumn.setText("Location");
 
-        TreeTableColumn LocRevisitColumn = new TreeTableColumn("Revisit");
-        LocRevisitColumn.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Integer>("Revisit"));
-        LocRevisitColumn.setText("Revisit (hours)");
-
-        TreeTableColumn CapabilityA = new TreeTableColumn("CapabilityA");
-        CapabilityA.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityA"));
-        CapabilityA.setText("Capability A");
-
-        TreeTableColumn CapabilityB = new TreeTableColumn("CapabilityB");
-        CapabilityB.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityB"));
-        CapabilityB.setText("Capability B");
-
-        TreeTableColumn CapabilityC = new TreeTableColumn("CapabilityC");
-        CapabilityC.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityC"));
-        CapabilityC.setText("Capability C");
-
-        TreeTableColumn CapabilityD = new TreeTableColumn("CapabilityD");
-        CapabilityD.setCellValueFactory(new TreeItemPropertyValueFactory<Location, Boolean>("CapabilityD"));
-        CapabilityD.setText("Capability D");
-
-        // load data into TableView
-        this.table_taskings.setEditable(false);
-        this.table_taskings.getColumns().addAll(LocationColumn, LocRevisitColumn, CapabilityA, CapabilityB, CapabilityC, CapabilityD);
-        this.table_taskings.setRoot(root);
-        this.table_taskings.setShowRoot(false);
-        root.setExpanded(true);
+        TreeItem root = new TreeItem(new Tasking("...","...",0,0,"...","..."));
+        for (int i=0; i<compiledTasking.size(); i++) {
+            TreeItem current = new TreeItem(compiledTasking.get(i));
+            root.getChildren().add(current);
+        }
+        this.table_tasking.setEditable(false);
+        this.table_tasking.getColumns().addAll(dateColumn, timeColumn, priorityColumn, revisitRateColumn, capabilityColumn, locationColumn);
+        this.table_tasking.setRoot(root);
+        this.table_tasking.setShowRoot(false);
     }
 
     @FXML

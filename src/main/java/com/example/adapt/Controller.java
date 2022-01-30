@@ -55,6 +55,7 @@ public class Controller {
     // upload buttons
     @FXML private Button btn_upload_schedule;
     @FXML private Button btn_upload_locations;
+    @FXML private Button btn_upload_tasking;
 
     // insert new schedule
     @FXML private DatePicker sch_insert_new_date;
@@ -79,9 +80,15 @@ public class Controller {
     @FXML private TextField loc_insert_catD;
     @FXML private Button btn_location_insert;
 
-    //delete location
+    // delete location
     @FXML private TextField loc_delete_name;
     @FXML private Button btn_location_delete;
+
+    // delete tasking
+    @FXML private TextField tasking_capability;
+    @FXML private TextField tasking_date;
+    @FXML private TextField tasking_start_time;
+    @FXML private Button btn_tasking_delete;
 
     // pick month
     @FXML private DatePicker picker_month_year;
@@ -706,6 +713,18 @@ public class Controller {
         return compiledYearTasking;
     }
 
+    private ArrayList<String[]> getLocationData() {
+        locations_filepath = Paths.get(data_directory_string+locations_filename_string);
+        File locationsFile = new File(locations_filepath.toString());
+        ArrayList<String[]> locationData = readCSVData(locationsFile);
+        return locationData;
+    }
+
+    @FXML
+    public void btnUploadTasking() {
+
+    }
+
     @FXML
     public void loadTaskings () {
         // get date selected
@@ -1009,5 +1028,10 @@ public class Controller {
             }
         }
         loadLocations();
+    }
+
+    @FXML
+    public void btnTaskingDelete() {
+
     }
 }
